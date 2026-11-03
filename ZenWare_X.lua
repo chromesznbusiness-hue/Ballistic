@@ -1,7 +1,3 @@
--- ZenWare X (fixed build)
--- Changes: welcome splash no longer blocks clicks and always auto-hides,
--- splash animation is wrapped in pcall, and the menu opens even if the splash fails.
-
 local P,RS,UIS,TS,HS,Lt,MP=game:GetService("Players"),game:GetService("RunService"),game:GetService("UserInputService"),game:GetService("TweenService"),game:GetService("HttpService"),game:GetService("Lighting"),game:GetService("MarketplaceService")
 local TXS,VIM=game:GetService("TextService"),game:GetService("VirtualInputManager")
 local LP,G=P.LocalPlayer,(getgenv and getgenv()) or _G
@@ -51,8 +47,8 @@ Th.custom()
 if not TH[ST.theme] then ST.theme="Black" end if not PK[ST.pack] then ST.pack="Zen" end if not Th.csc[ST.corner] then ST.corner="Round" end
 Th.use(ST.theme) Th.usepack(ST.pack)
 local C,TG,SL,oc={}, {}, {},0
-local F={auto=false,spd=120,stay=1,cruise=40,back=true,tpb=false,rspd=600,runS=70,runB=90,bsafe=0,alert=true,snd=true,eesp=true,etr=false,fly=false,walk=false,walkS=32,noclip=false,inf=false,afk=false,arj=false,pesp=false,pbox=false,phb=false,ptr=false,chams=false,edist=2000,aim=false,sticky=true,team=false,wall=false,cross=false,face=true,trig=false,tdel=.05,pred=.1,afov=200,smooth=0,jp=false,jpv=100,gravOn=false,grav=196,ctp=false,instp=false,fovOn=false,fovV=70,fpsb=false,mlfarm=false,mlrate=10,mlreb=false,mlcry=false,mlcnt=10,mlcdel=.4,mlmin=0,mlka=false,mlkr=20,mlkall=false,mlktp=false,mlfr=true,mmesp=false,mmcoin=false,mmr=200,bffesp=false,bfcesp=false,drpesp=false,drauto=false,drr=12,drd=120,dral=true,bbp=false,bbt=.35,bbs=false,fbeast=true,fcomp=false,fexit=false,fpod=false,fb=false,fps=false,glow=true,blur=true,part=true,splash=true,asave=true,uiS=1,hue=ST.hue,opac=ST.opac}
-local NS={auto=1,fly=1,aim=1,trig=1,mlfarm=1,mlcry=1,mlka=1,mlreb=1,mlkall=1,mlktp=1,mmcoin=1,drauto=1,bbp=1,bbs=1,ctp=1,hue=1,opac=1}
+local F={auto=false,spd=120,stay=1,cruise=40,back=true,tpb=false,rspd=600,runS=70,runB=90,bsafe=0,alert=true,snd=true,eesp=true,etr=false,fly=false,walk=false,walkS=32,noclip=false,inf=false,afk=false,arj=false,pesp=false,pbox=false,phb=false,ptr=false,chams=false,edist=2000,aim=false,sticky=true,team=false,wall=false,cross=false,face=true,trig=false,tdel=.05,pred=.1,afov=200,smooth=0,jp=false,jpv=100,gravOn=false,grav=196,ctp=false,instp=false,fovOn=false,fovV=70,fpsb=false,mlfarm=false,mlrate=10,mlreb=false,mlcry=false,mlcnt=10,mlcdel=.4,mlmin=0,mlka=false,mlkr=20,mlkall=false,mlktp=false,mlfr=true,mmesp=false,mmcoin=false,mmr=200,bffesp=false,bfcesp=false,drpesp=false,drauto=false,drr=12,drd=120,dral=true,bbp=false,bbt=.35,bbs=false,fbeast=true,fcomp=false,fexit=false,fpod=false,lorb=false,lrate=12,lhoop=false,sclk=false,sck=8,sacol=false,scr=80,ssell=false,sreb=false,segg=false,schest=false,fb=false,fps=false,glow=true,blur=true,part=true,splash=true,asave=true,uiS=1,hue=ST.hue,opac=ST.opac}
+local NS={auto=1,fly=1,aim=1,trig=1,mlfarm=1,mlcry=1,mlka=1,mlreb=1,mlkall=1,mlktp=1,mmcoin=1,drauto=1,bbp=1,bbs=1,ctp=1,lorb=1,lhoop=1,sclk=1,sacol=1,ssell=1,sreb=1,hue=1,opac=1}
 local nop=function() end
 local main,ms,gui
 local function cn(c) C[#C+1]=c return c end
@@ -104,28 +100,39 @@ local function hum() local c=LP.Character return c and c:FindFirstChildOfClass("
 local function root() local c=LP.Character return c and c:FindFirstChild("HumanoidRootPart") end
 gui=new("ScreenGui",{Name="ZenwareGui",ResetOnSpawn=false,IgnoreGuiInset=true},par)
 local EL=new("Frame",{Size=UDim2.new(1,0,1,0),BackgroundTransparency=1},gui)
--- ===== ZENMENU (game picker) =====
+-- ===== ZENHUB (game picker with category tabs) =====
+local CATS={"Shooter","Simulator","Pets","Survival","World","Other"}
 local GM={
-{k="pet",n="Ride a Pet",u=10035204815,d="Egg farming with auto fly.",f="Auto fly to eggs (noclip)\nRarity + egg filters\nBlacklist tab\nReturn to base\nEgg + player ESP"},
-{k="egg",n="Steal an Egg",u=10563114921,p=107778070777162,d="Autofarm eggs by running.",f="Autofarm: runs to the egg, runs back\nEgg ESP with area + rarity\nFilter by area / rarity\nBlacklist tab\nRuns instead of flying"},
-{k="riv",n="Rivals",u=6035872082,p=17625359962,d="Aimbot + ESP menu.",f="Sticky aimbot + face target\nTriggerbot + FOV circle\nBox ESP + health bars\nTracers + chams"},
-{k="ars",n="Arsenal",p=286090429,d="FPS aimbot, triggerbot, ESP.",f="Sticky aimbot + FOV circle\nTriggerbot\nBox ESP + health + tracers\nPlayers tab with avatars"},
-{k="pf",n="Phantom Forces",p=292439477,d="FPS aimbot, triggerbot, ESP.",f="Sticky aimbot + FOV circle\nTriggerbot\nBox ESP + health + tracers\nPlayers tab with avatars"},
-{k="cb",n="Counter Blox",p=301549746,d="FPS aimbot, triggerbot, ESP.",f="Sticky aimbot + FOV circle\nTriggerbot\nBox ESP + health + tracers\nPlayers tab with avatars"},
-{k="mm2",n="Murder Mystery 2",p=142823291,d="Role ESP and coin collect.",f="Murderer / sheriff / innocent ESP\nAuto collect coins\nTeleport to dropped gun\nPlayers tab with avatars"},
-{k="flee",n="Flee the Facility",p=893973440,d="Beast + map ESP.",f="Beast ESP\nComputer / exit / pod ESP\nTeleport to computers\nPlayers tab with avatars"},
-{k="bf",n="Blox Fruits",ps={2753915549,4442272183,7449423635},p=2753915549,d="Fruit and chest finder.",f="Fruit ESP + teleport\nChest ESP + teleport\nPlayer ESP\nPlayers tab with avatars"},
-{k="doors",n="Doors",ps={6516141723,6839171747},p=6839171747,d="Prompt ESP and auto interact.",f="Item / door prompt ESP\nAuto interact (skips hiding)\nEntity alerts\nFullbright, speed"},
-{k="ball",n="Blade Ball",p=13772394625,d="Auto parry helper.",f="Auto parry (ETA based)\nSpam parry\nAdjustable reaction time\nSpeed, jump"},
-{k="nds",n="Natural Disaster",p=189707,d="Survival helpers.",f="Sky platform safe spot\nReturn to ground\nFly, noclip, speed\nInfinite jump"},
-{k="brk",n="Brookhaven",p=4924922222,d="Teleports and utilities.",f="Players tab with avatars + view\nPlayer ESP\nFly, noclip, speed\nClick teleport"},
-{k="prl",n="Prison Life",p=155615604,d="Teleports and ESP.",f="Players tab with avatars + view\nPlayer ESP\nFly, noclip, speed\nClick teleport"},
-{k="ml",n="Muscle Legends",p=3623096087,d="Farm, crystals and combat.",f="Auto farm + auto rebirth\nCrystal opener + gem cost\nKill aura (any range option)\nPlayers tab + ESP"},
-{k="uni",n="Universal",u=9271746647,p=123974602339071,d="Works in any game.",f="Aimbot + triggerbot + ESP\nFly, noclip, speed\nPlayers tab with avatars\nFullbright, FPS counter"}}
+{k="riv",c="Shooter",n="Rivals",u=6035872082,p=17625359962,d="Aimbot + ESP menu.",f="Sticky aimbot + face target\nTriggerbot + FOV circle\nBox ESP + health bars\nTracers + chams"},
+{k="ars",c="Shooter",n="Arsenal",p=286090429,d="FPS aimbot, triggerbot, ESP.",f="Sticky aimbot + FOV circle\nTriggerbot\nBox ESP + health + tracers\nPlayers tab with avatars"},
+{k="pf",c="Shooter",n="Phantom Forces",p=292439477,d="FPS aimbot, triggerbot, ESP.",f="Sticky aimbot + FOV circle\nTriggerbot\nBox ESP + health + tracers\nPlayers tab with avatars"},
+{k="cb",c="Shooter",n="Counter Blox",p=301549746,d="FPS aimbot, triggerbot, ESP.",f="Sticky aimbot + FOV circle\nTriggerbot\nBox ESP + health + tracers\nPlayers tab with avatars"},
+{k="dh",c="Shooter",n="Da Hood",p=2788229376,d="Aimbot, triggerbot, ESP.",f="Sticky aimbot + FOV circle\nTriggerbot\nBox ESP + health + tracers\nPlayers tab with avatars"},
+{k="bb",c="Shooter",n="Bad Business",p=3233893879,d="FPS aimbot, triggerbot, ESP.",f="Sticky aimbot + FOV circle\nTriggerbot\nBox ESP + health + tracers\nPlayers tab with avatars"},
+{k="los",c="Simulator",n="Legends of Speed",p=3101667897,d="Orb, hoop and rebirth farming.",f="Auto farm orbs (XP / gems)\nAuto hoops + auto rebirth\nTeleport to eggs, shops, sell\nPlayers tab with avatars"},
+{k="nl",c="Simulator",n="Ninja Legends",p=3956818381,d="Ninja grinding toolkit.",f="Auto swing + auto collect\nAuto sell + auto rebirth\nTeleport to eggs / chests / sell\nPlayers tab with avatars"},
+{k="nl2",c="Simulator",n="Ninja Legends 2",d="Ninja grinding toolkit.",f="Auto swing + auto collect\nAuto sell + auto rebirth\nTeleport to eggs / chests / sell\nPlayers tab with avatars"},
+{k="ml",c="Simulator",n="Muscle Legends",p=3623096087,d="Farm, crystals and combat.",f="Auto farm + auto rebirth\nCrystal opener + gem cost\nKill aura (any range option)\nPlayers tab + ESP"},
+{k="ps99",c="Simulator",n="Pet Simulator 99",p=8737899170,d="Egg + chest toolkit.",f="Egg + chest ESP / teleport\nAuto collect + auto click\nAuto sell + auto rebirth\nPlayers tab with avatars"},
+{k="bee",c="Simulator",n="Bee Swarm Simulator",p=1537690962,d="Collect + teleport toolkit.",f="Auto collect + auto click\nAuto sell\nTeleport to chests / shops\nPlayers tab with avatars"},
+{k="pet",c="Pets",n="Ride a Pet",u=10035204815,d="Egg farming with auto fly.",f="Auto fly to eggs (noclip)\nRarity + egg filters\nBlacklist tab\nReturn to base\nEgg + player ESP"},
+{k="egg",c="Pets",n="Steal an Egg",u=10563114921,p=107778070777162,d="Autofarm eggs by running.",f="Autofarm: runs to the egg, runs back\nEgg ESP with area + rarity\nFilter by area / rarity\nBlacklist tab\nRuns instead of flying"},
+{k="adm",c="Pets",n="Adopt Me",p=920587237,d="Teleports and utilities.",f="Players tab with avatars + view\nPlayer ESP\nFly, noclip, speed\nClick teleport"},
+{k="mm2",c="Survival",n="Murder Mystery 2",p=142823291,d="Role ESP and coin collect.",f="Murderer / sheriff / innocent ESP\nAuto collect coins\nTeleport to dropped gun\nPlayers tab with avatars"},
+{k="flee",c="Survival",n="Flee the Facility",p=893973440,d="Beast + map ESP.",f="Beast ESP\nComputer / exit / pod ESP\nTeleport to computers\nPlayers tab with avatars"},
+{k="doors",c="Survival",n="Doors",ps={6516141723,6839171747},p=6839171747,d="Prompt ESP and auto interact.",f="Item / door prompt ESP\nAuto interact (skips hiding)\nEntity alerts\nFullbright, speed"},
+{k="nds",c="Survival",n="Natural Disaster",p=189707,d="Survival helpers.",f="Sky platform safe spot\nReturn to ground\nFly, noclip, speed\nInfinite jump"},
+{k="toh",c="Survival",n="Tower of Hell",p=1962086868,d="Finish teleport + movement.",f="Teleport to finish\nFly, noclip, speed\nInfinite jump\nPlayers tab with avatars"},
+{k="bf",c="World",n="Blox Fruits",ps={2753915549,4442272183,7449423635},p=2753915549,d="Fruit and chest finder.",f="Fruit ESP + teleport\nChest ESP + teleport\nPlayer ESP\nPlayers tab with avatars"},
+{k="brk",c="World",n="Brookhaven",p=4924922222,d="Teleports and utilities.",f="Players tab with avatars + view\nPlayer ESP\nFly, noclip, speed\nClick teleport"},
+{k="prl",c="World",n="Prison Life",p=155615604,d="Teleports and ESP.",f="Players tab with avatars + view\nPlayer ESP\nFly, noclip, speed\nClick teleport"},
+{k="jail",c="World",n="Jailbreak",p=606849621,d="Teleports and ESP.",f="Players tab with avatars + view\nPlayer ESP\nFly, noclip, speed\nClick teleport"},
+{k="ball",c="Other",n="Blade Ball",p=13772394625,d="Auto parry helper.",f="Auto parry (ETA based)\nSpam parry\nAdjustable reaction time\nSpeed, jump"},
+{k="uni",c="Other",n="Universal",u=9271746647,p=123974602339071,d="Works in any game.",f="Aimbot + triggerbot + ESP\nFly, noclip, speed\nPlayers tab with avatars\nFullbright, FPS counter"}}
 local choice,det
 do
 	local pn="" pcall(function() pn=MP:GetProductInfo(game.PlaceId).Name:lower() end)
-	local KN={pet="ride a pet",riv="rivals",ml="muscle legends",ars="arsenal",pf="phantom forces",cb="counter blox",mm2="murder mystery",flee="flee the facility",bf="blox fruits",doors="doors",ball="blade ball",nds="natural disaster",brk="brookhaven",prl="prison life"}
+	local KN={pet="ride a pet",riv="rivals",ml="muscle legends",ars="arsenal",pf="phantom forces",cb="counter blox",mm2="murder mystery",flee="flee the facility",bf="blox fruits",doors="doors",ball="blade ball",nds="natural disaster",brk="brookhaven",prl="prison life",los="legends of speed",nl="ninja legends",nl2="ninja legends 2",ps99="pet simulator 99",bee="bee swarm",dh="da hood",bb="bad business",toh="tower of hell",adm="adopt me",jail="jailbreak"}
 	for _,g in ipairs(GM) do
 		if (g.u and game.GameId==g.u) or (g.p and game.PlaceId==g.p) then det=g end
 		if g.ps then for _,id in ipairs(g.ps) do if game.PlaceId==id then det=g end end end
@@ -135,17 +142,19 @@ do
 	local lastK,autoOn=rf("ZenMenu_Last.txt"),rf("ZenMenu_Auto.txt")=="1"
 	if autoOn and not force then for _,g in ipairs(GM) do if g.k==lastK then choice=g.k end end end
 	if not choice then
-		local hub=new("CanvasGroup",{AnchorPoint=Vector2.new(.5,.5),Position=UDim2.new(.5,0,.5,0),Size=UDim2.fromOffset(450,300),BackgroundColor3=T.BG,GroupTransparency=1},gui) rd(hub,14)
+		local hub=new("CanvasGroup",{AnchorPoint=Vector2.new(.5,.5),Position=UDim2.new(.5,0,.5,0),Size=UDim2.fromOffset(450,330),BackgroundColor3=T.BG,GroupTransparency=1},gui) rd(hub,14)
 		local hs=new("UIScale",{Scale=.85},hub) new("UIStroke",{Color=T.AC,Transparency=.6,Thickness=1.5},hub)
 		local hav=new("ImageLabel",{Size=UDim2.fromOffset(26,26),Position=UDim2.fromOffset(12,10),BackgroundColor3=T.RB,Image=AV(LP.UserId)},hub) rd(hav,99)
 		new("UIStroke",{Color=T.AC,Thickness=1.5,Transparency=.3},hav)
 		new("TextLabel",{Size=UDim2.fromOffset(112,26),Position=UDim2.fromOffset(44,10),Text="Welcome, "..LP.DisplayName,TextSize=10,TextColor3=T.DIM,TextXAlignment=Enum.TextXAlignment.Left,TextTruncate=Enum.TextTruncate.AtEnd},hub)
-		new("TextLabel",{Size=UDim2.new(1,0,0,30),Position=UDim2.fromOffset(0,8),Text="Z E N M E N U",Font=T.HF,TextSize=15},hub)
-		new("TextLabel",{Size=UDim2.new(1,0,0,14),Position=UDim2.fromOffset(0,36),Text="SELECT YOUR GAME",Font=T.HF,TextSize=8,TextColor3=T.DIM},hub)
+		new("TextLabel",{Size=UDim2.new(1,0,0,30),Position=UDim2.fromOffset(0,8),Text="Z E N H U B",Font=T.HF,TextSize=15},hub)
+		new("TextLabel",{Size=UDim2.new(1,0,0,14),Position=UDim2.fromOffset(0,36),Text="PICK A CATEGORY, THEN YOUR GAME",Font=T.HF,TextSize=8,TextColor3=T.DIM},hub)
 		local hx=new("TextButton",{Size=UDim2.fromOffset(24,22),Position=UDim2.new(1,-34,0,10),Text="X",BackgroundColor3=T.RB},hub) rd(hx,6) press(hx) hx.Activated:Connect(function() gui:Destroy() end)
-		local list=new("ScrollingFrame",{Size=UDim2.fromOffset(150,236),Position=UDim2.fromOffset(12,54),BackgroundTransparency=1,ScrollBarThickness=2,CanvasSize=UDim2.new(),AutomaticCanvasSize=Enum.AutomaticSize.Y},hub)
+		local ctab=new("ScrollingFrame",{Size=UDim2.new(1,-24,0,24),Position=UDim2.fromOffset(12,54),BackgroundTransparency=1,ScrollBarThickness=0,CanvasSize=UDim2.new(),AutomaticCanvasSize=Enum.AutomaticSize.X,ScrollingDirection=Enum.ScrollingDirection.X},hub)
+		new("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal,Padding=UDim.new(0,5),SortOrder=Enum.SortOrder.LayoutOrder},ctab)
+		local list=new("ScrollingFrame",{Size=UDim2.fromOffset(150,236),Position=UDim2.fromOffset(12,84),BackgroundTransparency=1,ScrollBarThickness=2,CanvasSize=UDim2.new(),AutomaticCanvasSize=Enum.AutomaticSize.Y},hub)
 		new("UIListLayout",{Padding=UDim.new(0,6),SortOrder=Enum.SortOrder.LayoutOrder},list)
-		local rp=new("Frame",{Size=UDim2.fromOffset(264,236),Position=UDim2.fromOffset(174,54)},hub) rd(rp,12) new("UIStroke",{Color=T.TX,Transparency=.92},rp)
+		local rp=new("Frame",{Size=UDim2.fromOffset(264,236),Position=UDim2.fromOffset(174,84)},hub) rd(rp,12) new("UIStroke",{Color=T.TX,Transparency=.92},rp)
 		local bi=new("ImageLabel",{Size=UDim2.fromOffset(80,80),Position=UDim2.fromOffset(14,14),BackgroundColor3=T.RB,ScaleType=Enum.ScaleType.Crop},rp) rd(bi,12)
 		local bn=new("TextLabel",{Size=UDim2.fromOffset(146,40),Position=UDim2.fromOffset(104,14),Font=T.HF,TextSize=11,TextWrapped=true,TextXAlignment=Enum.TextXAlignment.Left},rp)
 		local bd=new("TextLabel",{Size=UDim2.fromOffset(146,44),Position=UDim2.fromOffset(104,56),TextSize=11,TextColor3=T.DIM,TextWrapped=true,TextXAlignment=Enum.TextXAlignment.Left,TextYAlignment=Enum.TextYAlignment.Top},rp)
@@ -154,17 +163,33 @@ do
 		local function abt() ab.Text="Auto-launch this game next time: "..(autoOn and "ON" or "OFF") end abt()
 		ab.Activated:Connect(function() autoOn=not autoOn abt() end)
 		local go=new("TextButton",{Size=UDim2.fromOffset(236,26),Position=UDim2.fromOffset(14,202),Text="LAUNCH",Font=T.HF,TextSize=11,BackgroundColor3=T.AC,TextColor3=T.OA},rp) rd(go,8) press(go)
-		local cards,sel={}, nil
+		local cards,sel,chipsC={}, nil, {}
 		local function setSel(g)
 			sel=g bn.Text=g.n:upper() bd.Text=g.d bf.Text=g.f bi.Image=cards[g.k].im.Image
 			for k,c in pairs(cards) do tw(c.st,.25,{Transparency=k==g.k and 0 or .88}) end
 		end
+		local function setCat(c)
+			for cc,b in pairs(chipsC) do local on=cc==c tw(b,.2,{BackgroundColor3=on and T.AC or T.RB,TextColor3=on and T.OA or T.TX}) end
+			local i,firstG=0,nil
+			for _,g in ipairs(GM) do
+				local cd=cards[g.k]
+				cd.b.Visible=(g.c==c)
+				if g.c==c then
+					firstG=firstG or g i=i+1
+					cd.us.Scale=.8
+					task.delay(i*.04,function() tw(cd.us,.35,{Scale=1},Enum.EasingStyle.Back) end)
+				end
+			end
+			list.CanvasPosition=Vector2.new()
+			if (not sel or sel.c~=c) and firstG then setSel(firstG) end
+		end
 		for _,g in ipairs(GM) do
-			local c=new("TextButton",{Size=UDim2.new(1,-4,0,56),Text="",AutoButtonColor=false},list) rd(c,10) press(c)
+			local c=new("TextButton",{Size=UDim2.new(1,-4,0,56),Text="",AutoButtonColor=false,Visible=false},list) rd(c,10) press(c)
+			local us=new("UIScale",{},c)
 			local st=new("UIStroke",{Color=T.AC,Transparency=.88},c)
 			local im=new("ImageLabel",{Size=UDim2.fromOffset(44,44),Position=UDim2.fromOffset(6,6),BackgroundColor3=T.RB,ScaleType=Enum.ScaleType.Crop},c) rd(im,8)
 			new("TextLabel",{Size=UDim2.new(1,-60,1,0),Position=UDim2.fromOffset(56,0),Text=g.n..(det==g and "\nDETECTED" or ""),TextSize=11,TextWrapped=true,TextXAlignment=Enum.TextXAlignment.Left},c)
-			cards[g.k]={st=st,im=im} c.Activated:Connect(function() setSel(g) end)
+			cards[g.k]={st=st,im=im,b=c,us=us} c.Activated:Connect(function() setSel(g) end)
 			task.spawn(function()
 				local img
 				if g.p then local o,i=pcall(function() return MP:GetProductInfo(g.p) end) if o and i and i.IconImageAssetId and i.IconImageAssetId~=0 then img="rbxassetid://"..i.IconImageAssetId end end
@@ -172,9 +197,16 @@ do
 				if img then im.Image=img if sel==g then bi.Image=img end end
 			end)
 		end
+		for _,cname in ipairs(CATS) do
+			local n=0 for _,g in ipairs(GM) do if g.c==cname then n=n+1 end end
+			local b=new("TextButton",{Size=UDim2.fromOffset(0,22),AutomaticSize=Enum.AutomaticSize.X,Text=cname:upper().." ("..n..")",Font=T.HF,TextSize=9,BackgroundColor3=T.RB},ctab)
+			new("UIPadding",{PaddingLeft=UDim.new(0,10),PaddingRight=UDim.new(0,10)},b) rd(b,11) press(b)
+			chipsC[cname]=b b.Activated:Connect(function() setCat(cname) end)
+		end
 		go.Activated:Connect(function() if sel then pcall(writefile,"ZenMenu_Last.txt",sel.k) pcall(writefile,"ZenMenu_Auto.txt",autoOn and "1" or "0") choice=sel.k end end)
 		local pre=det for _,g in ipairs(GM) do if not pre and g.k==lastK then pre=g end end
-		setSel(pre or GM[1])
+		setCat(pre and pre.c or "Shooter")
+		if pre then setSel(pre) end
 		tw(hub,.4,{GroupTransparency=0}) tw(hs,.55,{Scale=1},Enum.EasingStyle.Back)
 		repeat task.wait(.1) until choice or not gui.Parent
 		if gui.Parent then tw(hub,.3,{GroupTransparency=1}) tw(hs,.3,{Scale=1.1}) task.wait(.32) hub:Destroy() end
@@ -217,7 +249,6 @@ main=new("CanvasGroup",{AnchorPoint=Vector2.new(.5,.5),Position=UDim2.new(.5,0,.
 ms=new("UIScale",{Scale=0},main)
 local stk=new("UIStroke",{Color=T.AC,Transparency=.55,Thickness=1.5},main)
 local stg=new("UIGradient",{Color=Th.glow()},stk)
--- floating particles (behind everything)
 X.dots={}
 do
 	local pl=new("Frame",{Size=UDim2.fromScale(1,1),BackgroundTransparency=1},main)
@@ -237,40 +268,30 @@ local shg=new("UIGradient",{Transparency=NumberSequence.new({NumberSequenceKeypo
 local lbx=new("TextButton",{Size=UDim2.fromOffset(42,42),Position=UDim2.fromOffset(20,100),Text="Z",Font=T.HF,TextSize=18,BackgroundColor3=T.AC,TextColor3=T.OA,Visible=false},gui) rd(lbx,10) drag(lbx,lbx)
 local mb=new("TextButton",{Size=UDim2.fromOffset(26,22),Position=UDim2.new(1,-62,.5,-11),Text="-",BackgroundColor3=T.RB},tb) rd(mb,6) press(mb)
 local xb=new("TextButton",{Size=UDim2.fromOffset(26,22),Position=UDim2.new(1,-32,.5,-11),Text="X",BackgroundColor3=T.RB},tb) rd(xb,6) press(xb)
--- welcome splash (NON-blocking: never eats clicks, always auto-hides)
-local spl=new("CanvasGroup",{Size=UDim2.fromScale(1,1),BackgroundColor3=T.BG,ZIndex=30,Visible=false,Active=false},main) rd(spl,14)
+local spl=new("CanvasGroup",{Size=UDim2.fromScale(1,1),BackgroundColor3=T.BG,ZIndex=30,Visible=false,Active=true},main) rd(spl,14)
 local sAv=new("ImageLabel",{AnchorPoint=Vector2.new(.5,.5),Position=UDim2.new(.5,0,.5,-46),Size=UDim2.fromOffset(0,0),BackgroundColor3=T.RB,Image=AV(LP.UserId)},spl) rd(sAv,99)
 new("UIStroke",{Color=T.AC,Thickness=2.5},sAv)
 local sT1=new("TextLabel",{Size=UDim2.new(1,0,0,16),Position=UDim2.new(0,0,.5,6),Text="W E L C O M E",Font=T.HF,TextSize=10,TextColor3=T.AC,TextTransparency=1},spl)
 local sT2=new("TextLabel",{Size=UDim2.new(1,0,0,30),Position=UDim2.new(0,0,.5,24),Text="",Font=T.HF,TextSize=22},spl)
 local sT3=new("TextLabel",{Size=UDim2.new(1,0,0,14),Position=UDim2.new(0,0,.5,58),Text="@"..LP.Name.."  •  "..GN,TextSize=10,TextColor3=T.DIM,TextTransparency=1},spl)
-local function hideSplash()
-	pcall(function() tw(spl,.5,{GroupTransparency=1}) end)
-	task.delay(.55,function() spl.Visible=false end)
-end
 local function playSplash()
 	if X.splashed or not F.splash then return end
 	X.splashed=true
 	spl.Visible=true spl.GroupTransparency=0
 	tw(sAv,.7,{Size=UDim2.fromOffset(78,78)},Enum.EasingStyle.Back)
 	task.delay(.25,function() tw(sT1,.4,{TextTransparency=0}) end)
-	-- hard timeout: the splash can never stay on screen longer than ~4 seconds
-	task.delay(4,hideSplash)
 	task.spawn(function()
-		pcall(function()
-			task.wait(.35)
-			local nm=LP.DisplayName
-			local n=utf8.len(nm) or #nm
-			for i=1,n do
-				local pos=utf8.offset(nm,i+1) or (#nm+1)
-				sT2.Text=nm:sub(1,pos-1) task.wait(.04)
-			end
-			tw(sT3,.4,{TextTransparency=0})
-			task.wait(.9)
-			hideSplash()
-		end)
-		-- if anything above failed, make sure the splash is gone
-		spl.Visible=false
+		task.wait(.35)
+		local nm=LP.DisplayName
+		local n=utf8.len(nm) or #nm
+		for i=1,n do
+			local pos=utf8.offset(nm,i+1) or (#nm+1)
+			sT2.Text=nm:sub(1,pos-1) task.wait(.04)
+		end
+		tw(sT3,.4,{TextTransparency=0})
+		task.wait(.9)
+		tw(spl,.5,{GroupTransparency=1}) tw(sAv,.5,{Size=UDim2.fromOffset(100,100)})
+		task.wait(.55) spl.Visible=false
 	end)
 end
 X.blur=Instance.new("BlurEffect") X.blur.Size=0 X.blur.Parent=Lt
@@ -286,11 +307,10 @@ local function showM()
 	main.Position=lastPos+UDim2.fromOffset(0,18)
 	tw(main,.4,{GroupTransparency=1-F.opac,Position=lastPos}) tw(ms,.6,{Scale=F.uiS},Enum.EasingStyle.Back)
 	if F.blur then tw(X.blur,.5,{Size=14}) end
-	task.delay(.3,function() pcall(playSplash) end)
+	task.delay(.3,playSplash)
 end
 mb.Activated:Connect(hide) lbx.Activated:Connect(showM) xb.Activated:Connect(function() G.ZW() end)
 cn(UIS.InputBegan:Connect(function(i,g) if not g and (i.KeyCode==Enum.KeyCode.RightShift or i.KeyCode==Enum.KeyCode.Minus) then if main.Visible then hide() else showM() end end end))
--- toast
 local ts=new("Frame",{Size=UDim2.fromOffset(210,40),Position=UDim2.new(1,10,1,-56),BackgroundColor3=T.BG,ZIndex=10},gui) rd(ts,8) new("UIStroke",{Color=T.TX,Transparency=.7},ts)
 local tsB=new("Frame",{Size=UDim2.new(0,3,1,-12),Position=UDim2.fromOffset(6,6),BackgroundColor3=T.AC},ts) rd(tsB,99)
 local tsL=new("TextLabel",{Size=UDim2.new(1,-26,1,-6),Position=UDim2.fromOffset(18,0),Text="",TextSize=11,TextWrapped=true,TextXAlignment=Enum.TextXAlignment.Left},ts)
@@ -355,7 +375,7 @@ local function tab(n)
 	new("UIListLayout",{Padding=UDim.new(0,5),SortOrder=Enum.SortOrder.LayoutOrder},p)
 	pages[n]=hd sfs[n]=p b.Activated:Connect(function() show(n) end) return p
 end
--- widgets
+-- widgets (every widget supports a small description line)
 local function row(pg,h)
 	local f=new("Frame",{Size=UDim2.new(1,-6,0,h or 34)},pg) rd(f)
 	local s=new("UIStroke",{Color=T.TX,Transparency=.93},f)
@@ -499,7 +519,8 @@ local function plist(pg,fn)
 		if p==LP or bs[p] then return end
 		local f=new("Frame",{Size=UDim2.new(1,-6,0,40),Name=p.Name:lower()},sc) rd(f,8)
 		f:SetAttribute("dn",p.DisplayName:lower())
-		local im=new("ImageLabel",{Size=UDim2.fromOffset(32,32),Position=UDim2.fromOffset(6,4),BackgroundColor3=T.RB,Image=AV(p.UserId)},f) rd(im,99)
+		new("ImageLabel",{Size=UDim2.fromOffset(32,32),Position=UDim2.fromOffset(6,4),BackgroundColor3=T.RB,Image=AV(p.UserId)},f)
+		rd(f:FindFirstChildOfClass("ImageLabel"),99)
 		new("TextLabel",{Size=UDim2.new(1,-152,0,16),Position=UDim2.fromOffset(46,4),Text=p.DisplayName,TextSize=12,TextXAlignment=Enum.TextXAlignment.Left,TextTruncate=Enum.TextTruncate.AtEnd},f)
 		local sub=new("TextLabel",{Size=UDim2.new(1,-152,0,12),Position=UDim2.fromOffset(46,22),Text="@"..p.Name,TextSize=9,TextColor3=T.DIM,TextXAlignment=Enum.TextXAlignment.Left,TextTruncate=Enum.TextTruncate.AtEnd},f)
 		local tpb=new("TextButton",{Size=UDim2.fromOffset(36,24),Position=UDim2.new(1,-92,.5,-12),Text="TP",TextSize=11,BackgroundColor3=T.RB},f) rd(tpb,6) press(tpb)
@@ -526,7 +547,6 @@ local function plist(pg,fn)
 		end
 	end)
 end
--- locked target card (avatar of who the aimbot is on)
 function X.lockCard(pg)
 	local r=row(pg,44)
 	local im=new("ImageLabel",{Size=UDim2.fromOffset(32,32),Position=UDim2.fromOffset(8,6),BackgroundColor3=T.RB,Image=""},r) rd(im,99)
@@ -539,8 +559,8 @@ function X.lockCard(pg)
 		else im.Image="" l1.Text="No lock" l2.Text="Your aimbot target shows here" end
 	end
 end
--- world labels + watchers (eggs, MM2, Blox Fruits, Doors, Flee)
-X.OV={} X.RH={} X.g0=workspace.Gravity
+-- world labels + watchers + shared remote helpers
+X.OV={} X.RH={} X.g0=workspace.Gravity X.RM={} X.RT={}
 function X.dot(k,pos,txt,tr,col)
 	local d=X.OV[k]
 	if not d then d={tx=new("TextLabel",{AnchorPoint=Vector2.new(.5,1),Size=UDim2.fromOffset(220,28),TextSize=11,TextStrokeTransparency=.4,TextColor3=WH,Visible=false,ZIndex=2},EL),ln=mkf()} X.OV[k]=d end
@@ -575,6 +595,15 @@ function X.near(set)
 	return best,bd
 end
 function X.tp(pos) local r=root() if r and pos then r.CFrame=CFrame.new(pos+Vector3.new(0,3,0)) end end
+function X.inChar(o) local m=o.Parent while m and m~=workspace do if m:FindFirstChildOfClass("Humanoid") then return true end m=m.Parent end return false end
+function X.touch(o)
+	local r=root() if not r then return end
+	local function t(d) if firetouchinterest then pcall(function() firetouchinterest(r,d,0) firetouchinterest(r,d,1) end) end end
+	if o:IsA("BasePart") then t(o) end
+	for _,d in ipairs(o:GetDescendants()) do
+		if d:IsA("ProximityPrompt") then pcall(fireproximityprompt,d) elseif d:IsA("ClickDetector") then pcall(fireclickdetector,d) elseif d:IsA("BasePart") then t(d) end
+	end
+end
 function X.pass(set,on,col,label)
 	local r=root()
 	for o in pairs(set) do
@@ -585,6 +614,46 @@ function X.pass(set,on,col,label)
 		else X.hdot(o) end
 	end
 end
+function X.rem(names)
+	for _,n in ipairs(names) do
+		local r=X.RM[n]
+		if r and r.Parent then return r end
+		if not X.RT[n] or tick()-X.RT[n]>2 then
+			X.RT[n]=tick() r=nil
+			for _,rt in ipairs({LP,game:GetService("ReplicatedStorage")}) do
+				local x=rt:FindFirstChild(n,true)
+				if x and (x:IsA("RemoteEvent") or x:IsA("RemoteFunction")) then r=x break end
+			end
+			X.RM[n]=r
+			if r then return r end
+		end
+	end
+end
+function X.remFind(sub)
+	local key="~"..sub
+	local c=X.RM[key]
+	if c and c.Parent then return c end
+	if X.RT[key] and tick()-X.RT[key]<3 then return nil end
+	X.RT[key]=tick()
+	for _,rt in ipairs({game:GetService("ReplicatedStorage"),LP}) do
+		for _,d in ipairs(rt:GetDescendants()) do
+			if (d:IsA("RemoteEvent") or d:IsA("RemoteFunction")) and d.Name:lower():find(sub,1,true) then X.RM[key]=d return d end
+		end
+	end
+end
+function X.call(r,...)
+	local a={...}
+	return pcall(function()
+		if r:IsA("RemoteFunction") then return r:InvokeServer(unpack(a)) end
+		r:FireServer(unpack(a)) return nil
+	end)
+end
+function X.fire(names,...)
+	local r=X.rem(names) if not r then return false end
+	local a={...}
+	task.spawn(function() X.call(r,unpack(a)) end)
+	return true
+end
 -- state
 local EG,BL,SE,SR,BK,KW,SAr={}, {}, {}, {}, {}, {}, {}
 local tgt,mode,atE,base,got,t0=nil,"go",false,nil,0,tick()
@@ -594,18 +663,21 @@ local lock,stl,fp,GST=nil,nil,nil,nop
 local tn,ti,tpn={"Head","Chest","Legs","Root"},1,"Head"
 local TT={Head={"Head"},Chest={"UpperTorso","Torso"},Legs={"LowerTorso","Left Leg"},Root={"HumanoidRootPart"}}
 local isE,isM=(choice=="pet" or choice=="egg"),choice=="ml"
-local isF=(choice=="riv" or choice=="ars" or choice=="pf" or choice=="cb")
+local isF=(choice=="riv" or choice=="ars" or choice=="pf" or choice=="cb" or choice=="dh" or choice=="bb")
+local SIM=(choice=="los" or choice=="nl" or choice=="nl2" or choice=="ps99" or choice=="bee")
 local runMode=choice=="egg"
 if isE then PG.e,PG.b,PG.x=tab("Egg"),tab("Blacklist"),tab("ESP")
 elseif isF then PG.a,PG.x,PG.t=tab("Aimbot"),tab("ESP"),tab("Players")
 elseif isM then PG.f,PG.c,PG.k,PG.t,PG.x=tab("Farm"),tab("Crystals"),tab("Combat"),tab("Players"),tab("ESP")
+elseif SIM then PG.g,PG.x,PG.t=tab(choice=="los" and "Speed" or "Farm"),tab("ESP"),tab("Players")
+elseif choice=="toh" then PG.g,PG.t=tab("Tower"),tab("Players")
 elseif choice=="mm2" then PG.g,PG.x,PG.t=tab("Game"),tab("ESP"),tab("Players")
 elseif choice=="bf" then PG.g,PG.x,PG.t=tab("Fruits"),tab("ESP"),tab("Players")
 elseif choice=="doors" then PG.g=tab("Doors")
 elseif choice=="ball" then PG.g=tab("Blade Ball")
 elseif choice=="nds" then PG.g=tab("Survival")
 elseif choice=="flee" then PG.g,PG.x,PG.t=tab("Facility"),tab("ESP"),tab("Players")
-elseif choice=="brk" or choice=="prl" then PG.t,PG.x=tab("Players"),tab("ESP")
+elseif choice=="brk" or choice=="prl" or choice=="jail" or choice=="adm" then PG.t,PG.x=tab("Players"),tab("ESP")
 else PG.a,PG.x,PG.t=tab("Aimbot"),tab("ESP"),tab("Players") end
 PG.p,PG.m,PG.s=tab("Player"),tab("Misc"),tab("Settings")
 local cx={}
@@ -770,14 +842,7 @@ if isE then
 		end
 		return best
 	end
-	function grab(o)
-		local r=root()
-		local function t(d) if r and firetouchinterest then pcall(function() firetouchinterest(r,d,0) firetouchinterest(r,d,1) end) end end
-		for _,d in ipairs(o:GetDescendants()) do
-			if d:IsA("ProximityPrompt") then pcall(fireproximityprompt,d) elseif d:IsA("ClickDetector") then pcall(fireclickdetector,d) elseif d:IsA("BasePart") then t(d) end
-		end
-		if o:IsA("BasePart") then t(o) end
-	end
+	function grab(o) X.touch(o) end
 	cn(workspace.DescendantAdded:Connect(reg))
 	cn(workspace.DescendantRemoving:Connect(function(o) EG[o]=nil RC[o]=nil end))
 	function eStep()
@@ -795,40 +860,12 @@ end
 -- ===== MUSCLE LEGENDS =====
 if isM then
 	local fP,cP,kP=PG.f,PG.c,PG.k
-	local RM,RT={}, {}
+	local rem,call,fire=X.rem,X.call,X.fire
 	local TOOLS={"Weight","Pushups","Situps","Handstands","Punch"}
 	local mti=1
 	local CRY={"Blue Crystal","Green Crystal","Frost Crystal","Mythical Crystal","Inferno Crystal","Legends Crystal","Muscle Elite Crystal","Galaxy Oracle Crystal","Jungle Crystal","Eclipse Crystal","Infinity Crystal"}
 	local cry,ci,costs,gv,gt0,opened,lastRes="Blue Crystal",1,{},nil,0,0,"-"
 	local opening=false
-	local function rem(names)
-		for _,n in ipairs(names) do
-			local r=RM[n]
-			if r and r.Parent then return r end
-			if not RT[n] or tick()-RT[n]>2 then
-				RT[n]=tick() r=nil
-				for _,rt in ipairs({LP,game:GetService("ReplicatedStorage")}) do
-					local x=rt:FindFirstChild(n,true)
-					if x and (x:IsA("RemoteEvent") or x:IsA("RemoteFunction")) then r=x break end
-				end
-				RM[n]=r
-				if r then return r end
-			end
-		end
-	end
-	local function call(r,...)
-		local a={...}
-		return pcall(function()
-			if r:IsA("RemoteFunction") then return r:InvokeServer(unpack(a)) end
-			r:FireServer(unpack(a)) return nil
-		end)
-	end
-	local function fire(names,...)
-		local r=rem(names) if not r then return false end
-		local a={...}
-		task.spawn(function() call(r,unpack(a)) end)
-		return true
-	end
 	local function equip(n)
 		local c,h=LP.Character,hum() if not (c and h) then return end
 		local t=c:FindFirstChild(n)
@@ -951,6 +988,148 @@ if isM then
 		end
 	end
 end
+-- ===== SIMULATOR TOOLKIT (Legends of Speed, Ninja Legends 1+2, Pet Sim 99, Bee Swarm) =====
+if SIM then
+	local g=PG.g
+	local isLos=choice=="los"
+	local function nm(o) return o.Name:lower() end
+	local function mdl(o) return o:IsA("Model") or o:IsA("BasePart") end
+	local EGGS=X.watch(function(o) return mdl(o) and nm(o):find("egg",1,true)~=nil and nm(o):find("leggin",1,true)==nil and not X.inChar(o) end)
+	local CHS=X.watch(function(o) return mdl(o) and nm(o):find("chest",1,true)~=nil and not X.inChar(o) end)
+	local SELL=X.watch(function(o) return mdl(o) and nm(o):find("sell",1,true)~=nil and not X.inChar(o) end)
+	local SHOP=X.watch(function(o) return mdl(o) and nm(o):find("shop",1,true)~=nil and not X.inChar(o) end)
+	local CSET={coin=1,coins=1,gem=1,gems=1,orb=1,chi=1,crystal=1,token=1,star=1,stars=1,cash=1,gold=1,redorb=1,blueorb=1,yelloworb=1,orangeorb=1,gemorb=1,xporb=1,collectible=1,pickup=1,energy=1}
+	local COLS=X.watch(function(o)
+		if not o:IsA("BasePart") or X.inChar(o) then return false end
+		return CSET[(nm(o):gsub("[%d%s_]",""))]~=nil
+	end)
+	local HOOPS={}
+	if isLos then HOOPS=X.watch(function(o) return o:IsA("BasePart") and o:FindFirstAncestor("Hoops")~=nil and not X.inChar(o) end) end
+	local ORBS={"Red Orb","Blue Orb","Yellow Orb","Orange Orb","Gem"}
+	local CITIES={"City","Snow City","Magma City","Legends Highway","Speed Jungle"}
+	local LOS,city={}, "City"
+	if isLos then
+		sec(g,"LEGENDS OF SPEED")
+		tog(g,"Auto Farm Orbs","lorb","Collects orbs from the server for XP / gems, no running needed")
+		sld(g,"Orbs Per Second","lrate",1,40,"How fast orbs get collected. Lower is safer")
+		local addO,rpO=chips(g,"ORB TYPES  (Gem = gems, colored = XP)  none selected = all",LOS,ORBS)
+		tbox(g,"custom orb name...","Add Orb",function(n) addO(n) LOS[n]=true rpO() toast("Orb added: "..n) end)
+		X.opts(g,"CITY  (where the orbs are collected)",CITIES,function() return city end,function(n) city=n end)
+		tbox(g,"custom city name...","Use City",function(n) city=n toast("City: "..n) end)
+		tog(g,"Auto Hoops","lhoop","Collects every hoop on the map")
+		btn(g,"Teleport To Nearest Hoop","Jumps to the closest hoop",function() local o=X.near(HOOPS) if o then X.tp(X.opos(o)) else toast("No hoops found") end end)
+	end
+	sec(g,"AUTOMATION")
+	tog(g,"Auto Swing / Click","sclk","Swings your equipped tool again and again")
+	sld(g,"Swings Per Second","sck",1,30,"How fast it swings")
+	tog(g,"Auto Collect","sacol","Touches coins, gems, chi and orbs near you")
+	sld(g,"Collect Range","scr",20,500,"How far away things get collected")
+	tog(g,"Auto Sell","ssell","Touches sell pads and presses sell prompts")
+	tog(g,"Auto Rebirth","sreb","Fires the game's rebirth remote every 5 seconds")
+	sec(g,"TELEPORTS")
+	local function tpN(set,label) local o=X.near(set) if o then X.tp(X.opos(o)) toast("Teleported to "..label) else toast("No "..label.." found") end end
+	btn(g,"Teleport To Nearest Egg","Jumps next to the closest egg",function() tpN(EGGS,"egg") end)
+	btn(g,"Teleport To Nearest Chest","Jumps next to the closest chest",function() tpN(CHS,"chest") end)
+	btn(g,"Teleport To Sell Area","Jumps to the closest sell pad",function() tpN(SELL,"sell area") end)
+	btn(g,"Teleport To Nearest Shop","Jumps to the closest shop",function() tpN(SHOP,"shop") end)
+	btn(g,"Teleport To Nearest Collectible","Jumps to the closest coin / gem / orb",function() tpN(COLS,"collectible") end)
+	sec(g,"FINDERS")
+	tog(g,"Egg ESP","segg","Labels every egg with its distance")
+	tog(g,"Chest ESP","schest","Labels every chest with its distance")
+	btn(g,"Print Useful Remotes","Lists rebirth / egg / sell / collect remotes in the F9 console",function()
+		local n=0
+		for _,rt in ipairs({game:GetService("ReplicatedStorage"),LP}) do
+			for _,d in ipairs(rt:GetDescendants()) do
+				if d:IsA("RemoteEvent") or d:IsA("RemoteFunction") then
+					local s=d.Name:lower()
+					for _,k in ipairs({"rebirth","egg","sell","collect","orb","click","swing","hatch","gem","chest"}) do
+						if s:find(k,1,true) then print("[Zenware]",d:GetFullName()) n=n+1 break end
+					end
+				end
+			end
+		end
+		toast(n.." remotes printed (F9)")
+	end)
+	local stn=note(g,"Scanning...",44)
+	note(g,"Egg, sell, chest and collectible finding works by object name, and rebirth uses a remote with 'rebirth' in its name. Results depend on the game.",44)
+	local orbAcc,hp,clk,col,sl,rb,st2,warned=0,0,0,0,0,0,0,false
+	local function cnt(s) local n=0 for _ in pairs(s) do n=n+1 end return n end
+	GST=function(dt)
+		local r,h=root(),hum()
+		if isLos and F.lorb then
+			orbAcc=math.min(orbAcc+dt*F.lrate,10)
+			local n=math.floor(orbAcc)
+			if n>0 then
+				orbAcc=orbAcc-n
+				local types={} for k in pairs(LOS) do types[#types+1]=k end
+				if #types==0 then types=ORBS end
+				for _=1,n do for _,t in ipairs(types) do X.fire({"orbEvent"},"collectOrb",t,city) end end
+			end
+		end
+		if isLos and F.lhoop and r then
+			hp=hp+dt
+			if hp>.35 then
+				hp=0 local n=0
+				for o in pairs(HOOPS) do
+					if o.Parent and n<12 then
+						n=n+1
+						if firetouchinterest then pcall(function() firetouchinterest(r,o,0) firetouchinterest(r,o,1) end) end
+					end
+				end
+				if not firetouchinterest and not warned then warned=true toast("Your executor has no firetouchinterest") end
+			end
+		end
+		if F.sclk and h then
+			clk=math.min(clk+dt*F.sck,3)
+			while clk>=1 do
+				clk=clk-1
+				local c=LP.Character
+				local tool=c and c:FindFirstChildOfClass("Tool")
+				if not tool then
+					local bp=LP:FindFirstChildOfClass("Backpack")
+					tool=bp and bp:FindFirstChildOfClass("Tool")
+					if tool then h:EquipTool(tool) end
+				end
+				if tool then pcall(function() tool:Activate() end) end
+			end
+		end
+		if F.sacol and r then
+			col=col+dt
+			if col>.2 then
+				col=0 local n=0
+				for o in pairs(COLS) do
+					if o.Parent and n<8 and (o.Position-r.Position).Magnitude<=F.scr then
+						n=n+1
+						if firetouchinterest then pcall(function() firetouchinterest(r,o,0) firetouchinterest(r,o,1) end) end
+					end
+				end
+				if not firetouchinterest and not warned then warned=true toast("Your executor has no firetouchinterest") end
+			end
+		end
+		if F.ssell and r then
+			sl=sl+dt
+			if sl>1 then sl=0 local o=X.near(SELL) if o then pcall(X.touch,o) end end
+		end
+		if F.sreb then
+			rb=rb+dt
+			if rb>5 then rb=0 local rr=X.remFind("rebirth") if rr then task.spawn(function() X.call(rr,"rebirthRequest") end) end end
+		end
+		X.pass(EGGS,F.segg,rgb(255,200,90),"Egg") X.pass(CHS,F.schest,rgb(90,200,255),"Chest")
+		st2=st2+dt
+		if st2>.6 then
+			st2=0
+			stn.Text=string.format("Found: eggs %d | chests %d | sell %d | collectibles %d%s\nRebirth remote: %s",cnt(EGGS),cnt(CHS),cnt(SELL),cnt(COLS),isLos and (" | hoops "..cnt(HOOPS)) or "",X.remFind("rebirth") and "found" or "not found")
+		end
+	end
+end
+-- ===== TOWER OF HELL =====
+if choice=="toh" then
+	local g=PG.g
+	local FIN=X.watch(function(o) if not (o:IsA("BasePart") or o:IsA("Model")) then return false end local n=o.Name:lower() return n:find("finish",1,true)~=nil or n=="winpart" end)
+	sec(g,"TOWER")
+	btn(g,"Teleport To Finish","Jumps to the top of the tower (the finish area)",function() local o=X.near(FIN) if o then X.tp(X.opos(o)) else toast("No finish found yet. Climb a bit and try again") end end)
+	note(g,"Use Fly, Noclip and Speed in the Player tab to climb faster. The finish is found by name, so it may not load until the round starts.",44)
+end
 -- ===== AIMBOT GAMES / UNIVERSAL / TELEPORT LISTS =====
 if PG.a then aimUI(PG.a,choice=="riv") end
 if PG.x and not isE then espUI(PG.x) end
@@ -1047,9 +1226,8 @@ end
 -- ===== BLOX FRUITS =====
 if choice=="bf" then
 	local g=PG.g
-	local function inChar(o) local m=o.Parent while m and m~=workspace do if m:FindFirstChildOfClass("Humanoid") then return true end m=m.Parent end return false end
-	local FR=X.watch(function(o) return (o:IsA("Tool") or o:IsA("Model")) and o.Name:find("Fruit")~=nil and not inChar(o) end)
-	local CH=X.watch(function(o) return (o:IsA("Model") or o:IsA("BasePart")) and o.Name:find("Chest")~=nil and not inChar(o) end)
+	local FR=X.watch(function(o) return (o:IsA("Tool") or o:IsA("Model")) and o.Name:find("Fruit")~=nil and not X.inChar(o) end)
+	local CH=X.watch(function(o) return (o:IsA("Model") or o:IsA("BasePart")) and o.Name:find("Chest")~=nil and not X.inChar(o) end)
 	sec(g,"FRUITS")
 	tog(g,"Fruit ESP","bffesp","Shows spawned fruits and their distance")
 	btn(g,"Teleport To Nearest Fruit","Jumps to the closest spawned fruit",function() local o=X.near(FR) if o then X.tp(X.opos(o)) else toast("No fruit found") end end)
@@ -1308,7 +1486,7 @@ sec(sP,"CONFIG  ("..GN..")")
 tog(sP,"Auto Save Config","asave","Saves your toggles and sliders every 25 seconds")
 local cr2=row(sP,38)
 for i,n in ipairs({"Save","Load"}) do local b=new("TextButton",{Size=UDim2.new(.5,-12,0,26),Position=UDim2.new((i-1)*.5,i==1 and 8 or 4,.5,-13),Text=n,TextSize=12,BackgroundColor3=T.RB},cr2) rd(b,6) press(b) b.Activated:Connect(function() if i==1 then saveC() elseif loadC() then toast("Loaded!") end end) end
-btn(sP,"Switch Game","Goes back to the ZenMenu game picker",function() G.ZW() task.spawn(function() G.ZMBoot(true) end) end)
+btn(sP,"Switch Game","Goes back to the ZenHub game picker",function() G.ZW() task.spawn(function() G.ZMBoot(true) end) end)
 btn(sP,"Unload Zenware","Closes the menu and stops every feature",function() G.ZW() end)
 note(sP,"RightShift or '-' hides the menu",20)
 step(.6,"Loading engine")
@@ -1421,173 +1599,4 @@ do
 			ptg,pt0=tp,tick()
 			local from=r.Position
 			task.spawn(function()
-				local path=PFS:CreatePath({AgentRadius=2,AgentHeight=5,AgentCanJump=true})
-				local o2=pcall(function() path:ComputeAsync(from,tp) end)
-				if o2 and path.Status==Enum.PathStatus.Success then wp=path:GetWaypoints() wi=2 else wp=nil end
-			end)
-		end
-		local w=wp and wp[wi]
-		if w then
-			hh:MoveTo(w.Position) if w.Action==Enum.PathWaypointAction.Jump then hh.Jump=true end
-			if Vector3.new(w.Position.X-r.Position.X,0,w.Position.Z-r.Position.Z).Magnitude<4 then wi=wi+1 end
-		else hh:MoveTo(tp) end
-		return false
-	end
-	local ctl,ctt pcall(function() ctl=require(LP.PlayerScripts.PlayerModule):GetControls() end)
-	ctt=0
-	local function flyDir(h,cm)
-		if not ctl and tick()-ctt>3 then
-			ctt=tick()
-			pcall(function() ctl=require(LP.PlayerScripts:FindFirstChild("PlayerModule")):GetControls() end)
-		end
-		local mv=Vector3.zero
-		if ctl then local o,v=pcall(ctl.GetMoveVector,ctl) if o and typeof(v)=="Vector3" then mv=v end end
-		local typing=UIS:GetFocusedTextBox()~=nil
-		if mv.Magnitude<.05 and not typing then
-			local kx=(UIS:IsKeyDown(Enum.KeyCode.D) and 1 or 0)-(UIS:IsKeyDown(Enum.KeyCode.A) and 1 or 0)
-			local kz=(UIS:IsKeyDown(Enum.KeyCode.S) and 1 or 0)-(UIS:IsKeyDown(Enum.KeyCode.W) and 1 or 0)
-			mv=Vector3.new(kx,0,kz)
-		end
-		if mv.Magnitude<.05 and h then
-			local md=h.MoveDirection
-			if md.Magnitude>.05 then
-				local lk,rv=cm.CFrame.LookVector,cm.CFrame.RightVector
-				local fw,fr=Vector3.new(lk.X,0,lk.Z),Vector3.new(rv.X,0,rv.Z)
-				if fw.Magnitude>.01 and fr.Magnitude>.01 then fw,fr=fw.Unit,fr.Unit mv=Vector3.new(md:Dot(fr),0,-md:Dot(fw)) end
-			end
-		end
-		local dir=cm.CFrame.LookVector*-mv.Z+cm.CFrame.RightVector*mv.X
-		if not typing then
-			local up=(UIS:IsKeyDown(Enum.KeyCode.Space) and 1 or 0)-((UIS:IsKeyDown(Enum.KeyCode.LeftControl) or UIS:IsKeyDown(Enum.KeyCode.LeftShift)) and 1 or 0)
-			dir=dir+Vector3.yAxis*up
-		end
-		if dir.Magnitude>1 then dir=dir.Unit end
-		return dir
-	end
-	local was,ct,gt,sc,fa,ft,tm,av,wsr=false,0,0,0,0,0,0,0,false
-	local function arrive(dt)
-		if mode=="back" then mode="go" else
-			atE=true ct=ct+dt gt=gt+dt
-			if gt>.25 then gt=0 grab(tgt) end
-			if ct>F.stay then BL[tgt]=tick()+300 tgt=nil atE=false ct=0 if F.back and base then mode="back" end end
-		end
-	end
-	cn(RS.RenderStepped:Connect(function(dt)
-		tm=tm+dt fa=fa+1 ft=ft+dt sc=sc+dt av=av+dt
-		if F.glow and not Th.rainbow then stg.Rotation=(tm*60)%360 end
-		if main.Visible then
-			shg.Offset=Vector2.new(((tm*.45)%2)-1,0)
-			shine.BackgroundColor3=T.AC:Lerp(WH,.2)
-			if F.part then
-				local pc=T.AC:Lerp(WH,.3)
-				for _,d in ipairs(X.dots) do
-					d.y=d.y-d.s*dt if d.y<-.05 then d.y=1.05 d.x=math.random() end
-					d.f.Position=UDim2.fromScale(d.x+math.sin(tm*d.w+d.p)*.012,d.y)
-					d.f.BackgroundColor3=pc
-					d.f.BackgroundTransparency=.8+.12*math.sin(tm*1.5+d.p)
-				end
-			end
-		end
-		if ft>=.5 then
-			if F.fps then
-				local pg=0 pcall(function() pg=LP:GetNetworkPing()*1000 end)
-				fl.Text=string.format("%d FPS | %d ms",math.floor(fa/ft+.5),math.floor(pg))
-			end
-			fa,ft=0,0
-		end
-		if av>25 then av=0 if F.asave then saveC(true) end end
-		pcall(Th.rb,dt)
-		local h,r,cm=hum(),root(),workspace.CurrentCamera
-		if h and F.walk and not (runMode and F.auto and tgt) then h.WalkSpeed=F.walkS end
-		if h and F.jp and not runMode then pcall(function() h.UseJumpPower=true h.JumpPower=F.jpv end) end
-		if F.gravOn and not runMode then workspace.Gravity=F.grav end
-		if F.fovOn then cm.FieldOfView=F.fovV end
-		if X.specP then
-			local sh=X.specP.Character and X.specP.Character:FindFirstChildOfClass("Humanoid")
-			if sh and cm.CameraSubject~=sh then cm.CameraSubject=sh end
-		end
-		local tp
-		if F.auto then
-			local held=tgt and LP.Character and tgt:IsDescendantOf(LP.Character)
-			if tgt and (held or not tgt.Parent or not match(tgt)) then
-				if (held or atE) and (held or not tgt.Parent) then got=got+1 if F.back and base then mode="back" end end
-				tgt=nil atE=false ct=0
-			end
-			if mode=="back" then tp=base
-			else
-				if not tgt then tgt=pick() ct=0 atE=false end
-				tp=tgt and ppos(tgt)
-			end
-		end
-		if runMode then
-			if h and r and tp then
-				wsr=true h.WalkSpeed=(mode=="back") and F.runB or F.runS
-				if runTo(tp,h,r) then arrive(dt) end
-			elseif wsr and h and not F.walk then h.WalkSpeed=16 wsr=false end
-		elseif h and r and (F.fly or tp) then
-			was=true h.PlatformStand=true
-			if not fp or (r.Position-fp).Magnitude>15 then fp=r.Position end
-			if tp then
-				if mode=="back" and F.tpb then fp=tp end
-				if stepTo(tp,mode=="back" and F.rspd or F.spd,dt) then arrive(dt) end
-			else
-				fp=fp+flyDir(h,cm)*F.spd*dt
-			end
-			local lk=cm.CFrame.LookVector
-			r.AssemblyLinearVelocity=Vector3.zero r.AssemblyAngularVelocity=Vector3.zero
-			r.CFrame=CFrame.new(fp)*CFrame.Angles(0,math.atan2(-lk.X,-lk.Z),0)
-		else fp=nil if was and h then h.PlatformStand=false was=false end end
-		pcall(eStep) pcall(pStep)
-		if F.cross then cx[3].Size=UDim2.fromOffset(F.afov*2,F.afov*2) end
-		if F.aim then pcall(aimStep) elseif faceOn then pcall(setFace,false) end
-		if F.trig then pcall(trigStep,dt) end
-		pcall(GST,dt)
-		if sc>.3 and stl then
-			sc=0 local n=0 for _ in pairs(EG) do n=n+1 end
-			local el=tick()-t0
-			local tn2="none" if tgt then local rr,aa=rar(tgt) tn2=tgt.Name.." ["..rr..(aa and (" | "..aa) or "").."]" end
-			stl.Text=string.format("Eggs found: %d | Collected: %d | %d:%02d\nTarget: %s | Base: %s",n,got,math.floor(el/60),math.floor(el%60),tn2,base and "set" or "not set")
-		end
-	end))
-	cn(RS.Stepped:Connect(function() if (F.noclip or F.fly or (F.auto and not runMode)) and LP.Character then for _,p in ipairs(LP.Character:GetDescendants()) do if p:IsA("BasePart") then p.CanCollide=false end end end end))
-	cn(UIS.JumpRequest:Connect(function() if F.inf then local h=hum() if h then h:ChangeState(Enum.HumanoidStateType.Jumping) end end end))
-	cn(LP.Idled:Connect(function() if F.afk then pcall(function() local v=game:GetService("VirtualUser") v:CaptureController() v:ClickButton2(Vector2.new()) end) end end))
-	cn(game:GetService("GuiService").ErrorMessageChanged:Connect(function() if F.arj then pcall(function() game:GetService("TeleportService"):Teleport(game.PlaceId,LP) end) end end))
-	cn(P.PlayerRemoving:Connect(function(p) local d=PO[p] if d then d.tx:Destroy() d.ln:Destroy() d.bx:Destroy() d.hb:Destroy() PO[p]=nil end if HL[p] then HL[p]:Destroy() HL[p]=nil end if X.RH[p] then X.RH[p]:Destroy() X.RH[p]=nil end end))
-	G.ZW=function()
-		if F.asave then pcall(saveC,true) end
-		for _,c in ipairs(C) do pcall(function() c:Disconnect() end) end
-		if F.fb then pcall(TG.fb,false,true) end
-		if F.fpsb then pcall(TG.fpsb,false,true) end
-		for _,d in pairs(HL) do pcall(function() d:Destroy() end) end
-		for _,d in pairs(X.RH) do pcall(function() d:Destroy() end) end
-		if X.cl then pcall(X.cl) end
-		pcall(function() X.blur:Destroy() end)
-		pcall(function() workspace.Gravity=X.g0 end)
-		pcall(function() workspace.CurrentCamera.FieldOfView=70 local h=hum() if h then workspace.CurrentCamera.CameraSubject=h end end)
-		pcall(function() local h=hum() if h then h.PlatformStand=false h.WalkSpeed=16 h.JumpPower=50 h.AutoRotate=true end end)
-		gui:Destroy()
-	end
-end
-step(.8,"Loading your config")
-local loaded=loadC(true)
-for _,d in ipairs(X.dots) do d.f.Visible=F.part end
-step(.95,"Starting engine")
-X.built=true
-show(first)
-step(1,"Ready")
-endLoad() showM()
-if loaded then task.delay(.9,function() toast("Config loaded") end) end
-end)
-if not ok then
-	warn("[Zenware] "..tostring(e))
-	-- on error, always leave a visible message AND a Z button so the menu can still be reached
-	pcall(function()
-		local g=Instance.new("ScreenGui") g.Name="ZenwareError" g.ResetOnSpawn=false g.Parent=gp()
-		local l=Instance.new("TextLabel") l.Size=UDim2.new(0,420,0,120) l.Position=UDim2.new(.5,-210,0,40) l.BackgroundColor3=Color3.fromRGB(150,20,20) l.TextColor3=Color3.new(1,1,1) l.TextWrapped=true l.Font=Enum.Font.GothamBold l.TextSize=13 l.Text="ZenMenu error:\n"..tostring(e) l.Parent=g
-		task.delay(30,function() g:Destroy() end)
-	end)
-end
-end
-G.ZMBoot=boot
-boot(false)
+				local path=PFS:CreatePa
